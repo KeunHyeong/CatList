@@ -12,25 +12,44 @@ import RealmSwift
 
 class CatViewModel: ObservableObject {
     @Published var catImages: [CatImage] = []
+    @Published var isLoading: Bool = false
+    private var apiService: CatAPIService
     
     private var cancellable: Set<AnyCancellable> = []
     
-    init () {
-        fetchCats()
+    init (apiService: CatAPIService = .init()) {
+        self.apiService = apiService
+        
+        loadFromLocalDB()
     }
     
-    private func fetchCats() {
-
+    func fetchCatImages() {
+        guard !isLoading else { return }
+        if NetworkManager.shared.isOnline {
+            isLoading = true
+            apiService.fetchCatImages()
+                .sink(receiveCompletion: { completion in
+                    if case let .failure(error) = completion {
+                        print("에러: \(error)")
+                    }
+                }, receiveValue: { [weak self] images in
+                    self?.catImages.append(contentsOf: images)
+                    self?.saveToLocalDB(images: images)
+                })
+                .store(in: &cancellable)
+        }else {
+            loadFromLocalDB()
+        }
     }
     
-    private func saveLocalDB(images: [CatImage]) {
+    private func saveToLocalDB(images: [CatImage]) {
         let realm = try! Realm()
         try! realm.write {
             realm.add(images, update: .modified)
         }
     }
     
-    private func loadFLocalDB(){
+    private func loadFromLocalDB(){
         let realm = try! Realm()
         let objects = realm.objects(CatImage.self)
         catImages = Array(objects).shuffled()
