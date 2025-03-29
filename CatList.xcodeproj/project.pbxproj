@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		52AC6CC42D9783B0009C1D5D /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AC6CC32D9783B0009C1D5D /* NetworkManager.swift */; };
 		52E0C19F2D964EB9009D912F /* CatAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52E0C19E2D964EB9009D912F /* CatAPIService.swift */; };
 		52F19CFA2D94FF9A00BC97F7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F19CF72D94FF9A00BC97F7 /* ContentView.swift */; };
 		52F19CFB2D94FF9A00BC97F7 /* CatList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F19CF82D94FF9A00BC97F7 /* CatList.swift */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		52AC6CC32D9783B0009C1D5D /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		52E0C19E2D964EB9009D912F /* CatAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatAPIService.swift; sourceTree = "<group>"; };
 		52F19CA72D94F89700BC97F7 /* CatList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CatList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		52F19CF32D94FF9A00BC97F7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -62,6 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				52E0C19E2D964EB9009D912F /* CatAPIService.swift */,
+				52AC6CC32D9783B0009C1D5D /* NetworkManager.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -191,6 +194,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				52AC6CC42D9783B0009C1D5D /* NetworkManager.swift in Sources */,
 				52F19D172D95078B00BC97F7 /* CatViewModel.swift in Sources */,
 				52E0C19F2D964EB9009D912F /* CatAPIService.swift in Sources */,
 				52F19CFA2D94FF9A00BC97F7 /* ContentView.swift in Sources */,
