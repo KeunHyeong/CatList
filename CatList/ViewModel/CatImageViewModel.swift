@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 import RealmSwift
 
-class CatViewModel: ObservableObject {
+class CatImageViewModel: ObservableObject {
     @Published var catImages: [CatImage] = []
     @Published var isLoading: Bool = false
     private var apiService: CatAPIService
