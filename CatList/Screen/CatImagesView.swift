@@ -152,10 +152,28 @@ struct CatImageItemView: View {
 
 struct CatDetailView: View {
     let catImage: CatImage
+    @StateObject private var loader = ImageLoader()
+    @State private var currentScale: CGFloat = 1.0
+    @State private var finalScale: CGFloat = 1.0
     
     var body: some View {
         VStack {
-            
+            if let image = loader.image {
+                Image.init(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .scaledToFit()
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged{ value in
+                                currentScale = value
+                            }
+                            .onEnded{ value in
+                                finalScale = min(finalScale * value, 3.0)
+                                currentScale = 1.0
+                            }
+                    )
+            }
         }
     }
 }
