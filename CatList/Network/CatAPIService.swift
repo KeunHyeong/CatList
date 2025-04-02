@@ -10,6 +10,8 @@ import Combine
 import Foundation
 
 class CatAPIService {
+    static let shared = CatAPIService()
+    
     private let baseURL: URL = URL(string:"https://api.thecatapi.com/v1/images/search")!
     
     func fetchCatImages() -> AnyPublisher<[CatImage], Error> {
