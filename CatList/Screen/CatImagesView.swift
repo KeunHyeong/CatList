@@ -75,7 +75,6 @@ struct LandscapeGridView: View {
                                     .frame(width:300, height:120)
                                     .clipped()
                             }
-                            
                         }
                         
                         if let _ = vm.catImages.last {
@@ -114,7 +113,7 @@ struct LastItemView: View {
                     value: geo.frame(in: .global).minY
                 )
         }
-        .frame(height: 10) // 높이 아주 작게
+        .frame(height: 10)
         .frame(maxWidth: .infinity)
     }
 }
@@ -152,10 +151,37 @@ struct CatImageItemView: View {
 
 struct CatDetailView: View {
     let catImage: CatImage
+    @StateObject private var loader = ImageLoader()
+    @State private var currentScale: CGFloat = 1.0
+    @State private var finalScale: CGFloat = 1.0
     
     var body: some View {
         VStack {
-            
+            if let uiImage = loader.image {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFit()
+                    .scaleEffect(currentScale * finalScale)
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                currentScale = value
+                            }
+                            .onEnded { value in
+                                finalScale = min(finalScale * value, 3.0)
+                                currentScale = 1.0
+                            }
+                    )
+            } else {
+                ProgressView()
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.white)
+        .navigationTitle(catImage.id)
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            loader.load(urlString: catImage.url, id: catImage.id)
         }
     }
 }

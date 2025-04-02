@@ -24,7 +24,6 @@ class ImageLoader: ObservableObject {
         //캐시에 있다면 그걸 사용
         if let cachedImage = Self.cache.object(forKey: id as NSString) {
             self.image = cachedImage
-            print("cached hit")
             return
         }
         
@@ -39,7 +38,7 @@ class ImageLoader: ObservableObject {
                 .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] uiImage in
                     guard let uiImage = uiImage else { return }
                     self?.image = uiImage
-//                    Self.cache.setObject(uiImage, forKey: id as NSString)
+                    Self.cache.setObject(uiImage, forKey: id as NSString)
                 })
             return
         }
