@@ -18,7 +18,8 @@ class NetworkManager: ObservableObject {
         monitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {
                 self?.isOnline = path.status == .satisfied
-                print("Network manager pathUPdateHandler \(String(describing: self?.isOnline))")
+                print("self.monitor.currentPath.status \(path.status)")
+                print("[NetworkManager] pathUpdateHandler → isOnline: \(self?.isOnline ?? false)")
             }
         }
         

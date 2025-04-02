@@ -6,17 +6,18 @@
 //
 
 import SwiftUI
+import Combine
 
 struct CatImagesView: View {
     @StateObject var vm = CatImageViewModel()
     
     var body: some View {
-        CatListView(vm: vm)
+        CatListView<CatImageViewModel>(vm: vm)
             .navigationTitle("Cat Images")
     }
 }
 
-struct CatListView: View {
+struct CatListView<VM: CatImageViewModelProtocol>: View {
     @ObservedObject var vm: CatImageViewModel
     
     var body: some View {
@@ -26,11 +27,13 @@ struct CatListView: View {
             if isLandscape {
                 NavigationStack {
                     LandscapeGridView(vm: vm)
+                        .navigationTitle("Cat Images")
                 }
                 
             } else {
                 NavigationStack {
                     PortraitListView(vm: vm)
+                        .navigationTitle("Cat Images")
                 }
             }
         }
@@ -45,8 +48,8 @@ struct PortraitListView: View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 10)], spacing: 10) {
                 ForEach(vm.catImages, id: \.id) { image in
-                    NavigationLink(destination: CatDetailView()) {
-                        CatImageItemView(url: image.url)
+                    NavigationLink(destination: CatDetailView(catImage: image)) {
+                        CatImageItemView(catImage: image)
                             .frame(width:CGFloat(image.width), height:CGFloat(image.height))
                         
                     }
@@ -58,6 +61,8 @@ struct PortraitListView: View {
 
 struct LandscapeGridView: View {
     @ObservedObject var vm: CatImageViewModel
+    @State private var cancellable: AnyCancellable?
+    @State private var offsetSubject = PassthroughSubject<CGFloat, Never>()
     
     var body: some View {
         ScrollView(.vertical) {
@@ -65,33 +70,89 @@ struct LandscapeGridView: View {
                 ScrollView(.horizontal) {
                     LazyVGrid(columns: Array(repeating: GridItem(.fixed(300), spacing: 10), count: 5)) {
                         ForEach(vm.catImages, id: \.id) { image in
-                            NavigationLink(destination: CatDetailView()) {
-                                CatImageItemView(url: image.url)
+                            NavigationLink(destination: CatDetailView(catImage: image)) {
+                                CatImageItemView(catImage: image)
                                     .frame(width:300, height:120)
                                     .clipped()
                             }
                             
                         }
+                        
+                        if let _ = vm.catImages.last {
+                            LastItemView()
+                        }
                     }
                 }
+            }
+            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                offsetSubject.send(value)
+            }
+            .onAppear {
+                cancellable = offsetSubject
+                    .removeDuplicates()
+                    .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+                    .sink { value in
+                        let screenHeight = UIScreen.main.bounds.height
+                        if value < screenHeight + 100 {
+                            vm.fetchMoreIfNeeded(currentItem: vm.catImages.last)
+                        }
+                    }
+            }
+            .onDisappear {
+                cancellable?.cancel()
             }
         }
     }
 }
 
+struct LastItemView: View {
+    var body: some View {
+        GeometryReader { geo in
+            Color.clear
+                .preference(
+                    key: ScrollOffsetPreferenceKey.self,
+                    value: geo.frame(in: .global).minY
+                )
+        }
+        .frame(height: 10) // 높이 아주 작게
+        .frame(maxWidth: .infinity)
+    }
+}
+
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
 struct CatImageItemView: View {
-    var url: String = ""
+    @StateObject private var loader = ImageLoader()
+    let catImage: CatImage
     
     var body: some View {
-        VStack{
-            AsyncImage(url: URL(string: url))
-                .frame(width: 300, height: 120)
+        VStack {
+            if let uiImage = loader.image {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                Rectangle().fill(Color.gray.opacity(0.3))
+                    .overlay(ProgressView())
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            if loader.image == nil {
+                loader.load(urlString: catImage.url, id: catImage.id)
+            }
+        }
     }
 }
 
 struct CatDetailView: View {
+    let catImage: CatImage
+    
     var body: some View {
         VStack {
             
@@ -99,6 +160,4 @@ struct CatDetailView: View {
     }
 }
 
-//#Preview {
-//    CatImagesView()
-//}
+
