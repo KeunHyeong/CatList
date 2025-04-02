@@ -50,9 +50,17 @@ struct PortraitListView: View {
                 ForEach(vm.catImages, id: \.id) { image in
                     NavigationLink(destination: CatDetailView(catImage: image)) {
                         CatImageItemView(catImage: image)
-                            .frame(width:CGFloat(image.width), height:CGFloat(image.height))
+                            .frame(width: 300, height: 300)
                         
                     }
+                }
+                
+                if let lastImage = vm.catImages.last {
+                    Color.clear
+                        .frame(height: 10)
+                        .onAppear {
+                            vm.fetchMoreIfNeeded(currentItem: lastImage)
+                        }
                 }
             }
         }
@@ -135,12 +143,12 @@ struct CatImageItemView: View {
             if let uiImage = loader.image {
                 Image(uiImage: uiImage)
                     .resizable()
-                    .scaledToFit()
             } else {
                 Rectangle().fill(Color.gray.opacity(0.3))
                     .overlay(ProgressView())
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             if loader.image == nil {
                 loader.load(urlString: catImage.url, id: catImage.id)
