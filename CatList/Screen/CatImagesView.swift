@@ -160,7 +160,7 @@ struct CatDetailView: View {
             if let uiImage = loader.image {
                 Image(uiImage: uiImage)
                     .resizable()
-                    .scaledToFit()
+                    .aspectRatio(contentMode: .fill)
                     .scaleEffect(currentScale * finalScale)
                     .gesture(
                         MagnificationGesture()
@@ -180,6 +180,7 @@ struct CatDetailView: View {
         .background(Color.white)
         .navigationTitle(catImage.id)
         .navigationBarTitleDisplayMode(.inline)
+        .ignoresSafeArea(.all, edges: .bottom)
         .onAppear {
             loader.load(urlString: catImage.url, id: catImage.id)
         }
